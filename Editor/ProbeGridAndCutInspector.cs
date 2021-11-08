@@ -123,6 +123,12 @@ public class ProbeGridAndCutInspector : Editor
         Grid.SaveVariables();
     }
 
+    private void OnDestroy ()
+    {
+        Grid = (ProbeGridAndCut)target;
+        Grid.SaveVariables();
+    }
+
     private void OnEnable()
     {
         Grid = (ProbeGridAndCut)target;

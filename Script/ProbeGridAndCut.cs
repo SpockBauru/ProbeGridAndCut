@@ -31,14 +31,14 @@ public class ProbeGridAndCut : MonoBehaviour
     public float rayTestSize = 1f;
 
     LightProbeGroup probeGroup;
-    string probeId;
+    string probeGroupId;
     [HideInInspector]
     public List<Vector3> probePositions;
 
     void Start()
     {
         probeGroup = GetComponent<LightProbeGroup>();
-        probeId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
+        probeGroupId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
         probePositions = new List<Vector3>(probeGroup.probePositions);
     }
 
@@ -154,7 +154,7 @@ public class ProbeGridAndCut : MonoBehaviour
             name3 = "3";
             name4 = "4";
             name5 = "5";
-            
+
             //Up to probe
             rayPos.Set(position.x, position.y + rayTestSize, position.z);
             if (Physics.Raycast(rayPos, Vector3.down, out hit, Vector3.Distance(rayPos, position))) name1 = hit.transform.name;
@@ -195,13 +195,14 @@ public class ProbeGridAndCut : MonoBehaviour
         Vector3 scale = transform.localScale;
         Vector3 position;
         Vector3 endLine = Vector3.zero;
+        Vector3 startLine = Vector3.zero;
 
         bool hitObject;
         bool hitTest;
 
         RaycastHit hit;
 
-        //Raycast all 6 sides from selected size to the probe, and from the probe to the selected size.
+        //Raycast all 3 axis from one side to other, and vice versa.
         //If there's at least one hit, the box is near an object and will not be cut
         for (int i = probePositions.Count - 1; i >= 0; i--)
         {
@@ -211,65 +212,41 @@ public class ProbeGridAndCut : MonoBehaviour
 
             hitObject = false;
 
-            //Up to probe and probe to Up
+            //Down to Up and Up do Down
+            startLine.Set(position.x, position.y - rayTestSize, position.z);
             endLine.Set(position.x, position.y + rayTestSize, position.z);
-            hitTest = Physics.Raycast(endLine, Vector3.down, out hit, Vector3.Distance(endLine, position));
+
+            hitTest = Physics.Raycast(startLine, Vector3.up, out hit, Vector3.Distance(startLine, endLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            hitTest = Physics.Raycast(position, Vector3.up, out hit, Vector3.Distance(position, endLine));
+            hitTest = Physics.Raycast(endLine, Vector3.down, out hit, Vector3.Distance(endLine, startLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
+            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
 
-            //Bottom to probe and probe to Bottom
-            endLine.Set(position.x, position.y - rayTestSize, position.z);
-            hitTest = Physics.Raycast(endLine, Vector3.up, out hit, Vector3.Distance(endLine, position));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            hitTest = Physics.Raycast(position, Vector3.down, out hit, Vector3.Distance(position, endLine));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
-
-            //Right to probe and probe to Right
+            //Left to Right and Right to Left
+            startLine.Set(position.x - rayTestSize, position.y, position.z);
             endLine.Set(position.x + rayTestSize, position.y, position.z);
-            hitTest = Physics.Raycast(endLine, Vector3.left, out hit, Vector3.Distance(endLine, position));
+
+            hitTest = Physics.Raycast(startLine, Vector3.right, out hit, Vector3.Distance(startLine, endLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            hitTest = Physics.Raycast(position, Vector3.right, out hit, Vector3.Distance(position, endLine));
+            hitTest = Physics.Raycast(endLine, Vector3.left, out hit, Vector3.Distance(endLine, startLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
+            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
 
-            //Left to probe and probe to Left
-            endLine.Set(position.x - rayTestSize, position.y, position.z);
-            hitTest = Physics.Raycast(endLine, Vector3.right, out hit, Vector3.Distance(endLine, position));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            hitTest = Physics.Raycast(position, Vector3.left, out hit, Vector3.Distance(position, endLine));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
-
-            //Forward to probe and probe to Forward
+            //Back to Forward and Forward to Back
+            startLine.Set(position.x, position.y, position.z - rayTestSize);
             endLine.Set(position.x, position.y, position.z + rayTestSize);
-            hitTest = Physics.Raycast(endLine, Vector3.back, out hit, Vector3.Distance(endLine, position));
+
+            hitTest = Physics.Raycast(startLine, Vector3.forward, out hit, Vector3.Distance(startLine, endLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            hitTest = Physics.Raycast(position, Vector3.forward, out hit, Vector3.Distance(position, endLine));
+            hitTest = Physics.Raycast(endLine, Vector3.back, out hit, Vector3.Distance(endLine, startLine));
             hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
 
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
-
-            //Back to probe and probe to Back
-            endLine.Set(position.x, position.y, position.z - rayTestSize);
-            hitTest = Physics.Raycast(endLine, Vector3.forward, out hit, Vector3.Distance(endLine, position));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            hitTest = Physics.Raycast(position, Vector3.back, out hit, Vector3.Distance(position, endLine));
-            hitObject = hitObject || (hitTest && (hit.collider.gameObject.isStatic || !onlyStatic));
-
-            Debug.DrawLine(position, endLine, Color.yellow, 1);
+            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
 
             if (!hitObject) probePositions.RemoveAt(i);
         }
@@ -292,14 +269,15 @@ public class ProbeGridAndCut : MonoBehaviour
         for (int i = 0; i < BoundaryTags.Count; i++)
             data[6 + i] = BoundaryTags[i];
 
-        string path = "Assets/ProbeGridAndCut/Instances/" + probeId + ".txt";
-        File.WriteAllLines(path,data);
+        string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        File.WriteAllLines(path, data);
     }
 
     public void LoadVariables()
     {
         //probeId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
-        string path = "Assets/ProbeGridAndCut/Instances/" + probeId + ".txt";
+        string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
         if (File.Exists(path))
         {
             string[] data = File.ReadAllLines(path);
