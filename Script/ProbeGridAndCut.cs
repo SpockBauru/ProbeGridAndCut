@@ -254,29 +254,30 @@ public class ProbeGridAndCut : MonoBehaviour
 
     public void SaveVariables()
     {
-        //probeId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
-        string[] data = new string[6 + BoundaryTags.Count];
+        if (probeGroupId.Length > 0)
+        {
+            string[] data = new string[6 + BoundaryTags.Count];
 
-        data[0] = probesInX.ToString();
-        data[1] = probesInY.ToString();
-        data[2] = probesInZ.ToString();
+            data[0] = probesInX.ToString();
+            data[1] = probesInY.ToString();
+            data[2] = probesInZ.ToString();
 
-        data[3] = onlyStatic.ToString();
-        data[4] = rayTestSize.ToString(CultureInfo.InvariantCulture.NumberFormat);
+            data[3] = onlyStatic.ToString();
+            data[4] = rayTestSize.ToString(CultureInfo.InvariantCulture.NumberFormat);
 
-        //Saving tags
-        data[5] = BoundaryTags.Count.ToString();
-        for (int i = 0; i < BoundaryTags.Count; i++)
-            data[6 + i] = BoundaryTags[i];
+            //Saving tags
+            data[5] = BoundaryTags.Count.ToString();
+            for (int i = 0; i < BoundaryTags.Count; i++)
+                data[6 + i] = BoundaryTags[i];
 
-        string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
-        File.WriteAllLines(path, data);
+            string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            File.WriteAllLines(path, data);
+        }
     }
 
     public void LoadVariables()
     {
-        //probeId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
         string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
         if (File.Exists(path))
         {

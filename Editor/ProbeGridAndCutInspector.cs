@@ -6,8 +6,10 @@ public class ProbeGridAndCutInspector : Editor
 {
     ProbeGridAndCut Grid;
     string plannedProbes;
-    string tagText;
-    float ProbeCount;
+    string text;
+    float probeCount;
+    float allProbeCount=0f;
+    bool showDanger=false;
 
     public override void OnInspectorGUI()
     {
@@ -15,7 +17,7 @@ public class ProbeGridAndCutInspector : Editor
         Grid = (ProbeGridAndCut)target;
 
         // ========================================Create Light Probe Grid Section========================================
-        EditorGUILayout.Space(10f);
+        //EditorGUILayout.Space(10f);
         EditorGUILayout.LabelField("Number of Light Probes on each axis", EditorStyles.boldLabel);
 
         Grid.probesInX = EditorGUILayout.IntField(new GUIContent("X", "Minimum is 2"), Grid.probesInX);
@@ -23,18 +25,18 @@ public class ProbeGridAndCutInspector : Editor
         Grid.probesInZ = EditorGUILayout.IntField(new GUIContent("Z", "Minimum is 2"), Grid.probesInZ);
 
         //Counting number of probes planned and displaying planned/Current number of probes
-        ProbeCount = Grid.probesInX * Grid.probesInY * Grid.probesInZ;
-        plannedProbes = "Probes Planned/Current:  " + ProbeCount + " / " + Grid.probePositions.Count.ToString();
+        probeCount = Grid.probesInX * Grid.probesInY * Grid.probesInZ;
+        plannedProbes = "Probes Planned/Current:  " + probeCount + " / " + Grid.probePositions.Count.ToString();
         EditorGUILayout.LabelField(plannedProbes);
 
         //Display as warning if number is too big
-        if (ProbeCount > 10000 && ProbeCount <= 100000) EditorGUILayout.HelpBox("WARNING: More than 10,000 probes can cause slowdowns", MessageType.Warning);
-        if (ProbeCount > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut can't handle more than 100,000 probes ", MessageType.Error);
+        if (probeCount > 10000 && probeCount <= 100000) EditorGUILayout.HelpBox("WARNING: More than 10,000 probes can cause slowdowns", MessageType.Warning);
+        if (probeCount > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut can't handle more than 100,000 probes ", MessageType.Error);
 
         if (GUILayout.Button("Generate Light Probes Grid"))
         {
             //Dont generate if number of probes is too high
-            if (ProbeCount <= 100000)
+            if (probeCount <= 100000)
             {
                 Grid.Generate();
                 Grid.UpdateProbes();
@@ -53,8 +55,8 @@ public class ProbeGridAndCutInspector : Editor
 
         for (int i = 0; i < Grid.BoundaryTags.Count; i++)
         {
-            tagText = "Tag " + (i + 1).ToString();
-            Grid.BoundaryTags[i] = EditorGUILayout.TagField(tagText, Grid.BoundaryTags[i]);
+            text = "Tag " + (i + 1).ToString();
+            Grid.BoundaryTags[i] = EditorGUILayout.TagField(text, Grid.BoundaryTags[i]);
         }
 
         EditorGUILayout.BeginHorizontal();
@@ -97,13 +99,7 @@ public class ProbeGridAndCutInspector : Editor
         EditorGUILayout.LabelField("Make everything", EditorStyles.boldLabel);
         EditorGUILayout.LabelField("Generate probes, cut bondaries, cut inside and cut outside");
 
-        var style = new GUIStyle(GUI.skin.button);
-        style.normal.textColor = Color.white;
-        style.fontStyle = FontStyle.Bold;
-        style.hover.textColor = Color.white;
-        style.active.textColor = Color.white;
-        GUI.backgroundColor = Color.red;
-        if (GUILayout.Button("Make Everything", style))
+        if (GUILayout.Button("Make Everything"))
         {
             Grid.Generate();
             Grid.CutTaggedObjects();
@@ -114,6 +110,28 @@ public class ProbeGridAndCutInspector : Editor
             if (Grid.probePositions.Count <= 100000)
                 Grid.UpdateProbes();
             else _ = EditorUtility.DisplayDialog("Aborting", "ProbeGridAndCut Cannot handle more than 100,000 probes", "Ok");
+        }
+
+        //========================================Make Everything for Evety ProbeGridAndCut Section========================================
+        showDanger = EditorGUILayout.Toggle("Show Dangerous Button",showDanger);
+        if (showDanger)
+        {
+            EditorGUILayout.LabelField("Make Everthing for Every ProbeGridAndCut in the Scene", EditorStyles.boldLabel);
+            if (GUILayout.Button("Make Everything for Every ProbeGridAndCut"))
+            {
+                ProbeGridAndCut[] foundInstances = Object.FindObjectsOfType<ProbeGridAndCut>();
+                for (int i = 0; i < foundInstances.Length; i++)
+                {
+                    foundInstances[i].Generate();
+                    foundInstances[i].CutTaggedObjects();
+                    foundInstances[i].CutInsideObjects();
+                    foundInstances[i].CutFarFromObject();
+                    foundInstances[i].UpdateProbes();
+                    allProbeCount += foundInstances[i].probePositions.Count;
+                }
+            }
+            text = "All Probes Generated: " + allProbeCount.ToString();
+            EditorGUILayout.LabelField(text);
         }
     }
 
