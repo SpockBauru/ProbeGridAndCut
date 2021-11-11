@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System.IO;
-using System.Globalization;
 
 [ExecuteInEditMode]
 public class ProbeGridAndCut : MonoBehaviour
@@ -38,6 +36,7 @@ public class ProbeGridAndCut : MonoBehaviour
     void Start()
     {
         probeGroup = GetComponent<LightProbeGroup>();
+        if (probeGroup == null) probeGroup = gameObject.AddComponent<LightProbeGroup>();
         probeGroupId = GlobalObjectId.GetGlobalObjectIdSlow(probeGroup).ToString();
         probePositions = new List<Vector3>(probeGroup.probePositions);
     }
@@ -249,55 +248,6 @@ public class ProbeGridAndCut : MonoBehaviour
             Debug.DrawLine(startLine, endLine, Color.yellow, 1);
 
             if (!hitObject) probePositions.RemoveAt(i);
-        }
-    }
-
-    public void SaveVariables()
-    {
-        if (probeGroupId.Length > 0)
-        {
-            string[] data = new string[6 + BoundaryTags.Count];
-
-            data[0] = probesInX.ToString();
-            data[1] = probesInY.ToString();
-            data[2] = probesInZ.ToString();
-
-            data[3] = onlyStatic.ToString();
-            data[4] = rayTestSize.ToString(CultureInfo.InvariantCulture.NumberFormat);
-
-            //Saving tags
-            data[5] = BoundaryTags.Count.ToString();
-            for (int i = 0; i < BoundaryTags.Count; i++)
-                data[6 + i] = BoundaryTags[i];
-
-            string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-            File.WriteAllLines(path, data);
-        }
-    }
-
-    public void LoadVariables()
-    {
-        string path = "Assets/ProbeGridAndCut/Editor/SavedInstances/" + probeGroupId + ".txt";
-        if (File.Exists(path))
-        {
-            string[] data = File.ReadAllLines(path);
-
-            probesInX = int.Parse(data[0]);
-            probesInY = int.Parse(data[1]);
-            probesInZ = int.Parse(data[2]);
-
-            onlyStatic = bool.Parse(data[3]);
-            rayTestSize = float.Parse(data[4], CultureInfo.InvariantCulture.NumberFormat);
-
-            //Loading Tags
-            int tagsSize = int.Parse(data[5]);
-            BoundaryTags.Clear();
-            for (int i = 0; i < tagsSize; i++)
-            {
-                BoundaryTags.Add(data[6 + i]);
-            }
-            if (tagsSize <= 0) BoundaryTags.Add("Untagged");
         }
     }
 }
