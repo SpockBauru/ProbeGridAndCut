@@ -1,79 +1,92 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(ProbeGridAndCut))]
-public class ProbeGridAndCutInspector : Editor
+
+[CustomEditor(typeof(ProbeGridAndCutScript))]
+public class ProbeGridAndCutEditor : Editor
 {
-    //Variables from Monobehavior class
-    ProbeGridAndCut Grid;
+    ProbeGridAndCutScript Grid;
+
+    // Variables from Monobehavior class
     SerializedProperty probesInX;
     SerializedProperty probesInY;
     SerializedProperty probesInZ;
 
     SerializedProperty onlyStatic;
+    SerializedProperty somethingChanged;
     SerializedProperty rayTestSize;
     SerializedProperty BoundaryTags;
+    SerializedProperty probeCount;
 
-    //Temp Variables
+    // Temp Variables
     string text;
-    float probeCount;
+    float probesPlanned;
     float allProbeCount = 0f;
 
-    //Keep this unfold
-    bool showDanger=false;
+    // Keep this folded
+    bool showDanger = false;
 
-    private void OnEnable()
+    void OnEnable()
     {
+        Grid = (ProbeGridAndCutScript)target;
+
         probesInX = serializedObject.FindProperty("probesInX");
         probesInY = serializedObject.FindProperty("probesInY");
         probesInZ = serializedObject.FindProperty("probesInZ");
 
         onlyStatic = serializedObject.FindProperty("onlyStatic");
+        somethingChanged = serializedObject.FindProperty("somethingChanged");
         rayTestSize = serializedObject.FindProperty("rayTestSize");
         BoundaryTags = serializedObject.FindProperty("BoundaryTags");
+        probeCount = serializedObject.FindProperty("probeCount");
     }
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
-        Grid = (ProbeGridAndCut)target;
         serializedObject.Update();
+        Grid = (ProbeGridAndCutScript)target;
 
         // ========================================Create Light Probe Grid Section========================================
         probesInX.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(probesInX.isExpanded, "Number of Light Probes on each axis");
         if (probesInX.isExpanded)
         {
-            EditorGUILayout.DelayedIntField(probesInX, new GUIContent("X", "Minimum is 2"));
-            EditorGUILayout.DelayedIntField(probesInY, new GUIContent("Y", "Minimum is 2"));
-            EditorGUILayout.DelayedIntField(probesInZ, new GUIContent("Z", "Minimum is 2"));
+            EditorGUILayout.PropertyField(probesInX, new GUIContent("Probes in X", "Minimum is 2"));
+            EditorGUILayout.PropertyField(probesInY, new GUIContent("Probes in Y", "Minimum is 2"));
+            EditorGUILayout.PropertyField(probesInZ, new GUIContent("Probes in Z", "Minimum is 2"));
 
-            //Counting number of probes planned and displaying planned/Current number of probes
-            probeCount = Grid.probesInX * Grid.probesInY * Grid.probesInZ;
-            text = "Probes Planned/Current:  " + probeCount + " / " + Grid.probePositions.Count.ToString();
+            // Fool proof (I always do that...)
+            if (probesInX.intValue < 2) probesInX.intValue = 2;
+            if (probesInY.intValue < 2) probesInY.intValue = 2;
+            if (probesInZ.intValue < 2) probesInZ.intValue = 2;
+
+            // Counting number of probes planned and displaying planned/Current number of probes
+            probesPlanned = Grid.probesInX * Grid.probesInY * Grid.probesInZ;
+            text = "Probes Planned/Current:  " + probesPlanned + " / " + probeCount.intValue.ToString();
             EditorGUILayout.LabelField(text);
 
-            //Display as warning if number is too big
-            if (probeCount > 10000 && probeCount <= 100000) EditorGUILayout.HelpBox("WARNING: More than 10,000 probes can cause slowdowns", MessageType.Warning);
-            if (probeCount > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut can't handle more than 100,000 probes ", MessageType.Error);
+            // Display as warning if number is too big
+            if (probesPlanned > 10000 && probesPlanned <= 100000) EditorGUILayout.HelpBox("WARNING: More than 10,000 probes can cause slowdowns", MessageType.Warning);
+            if (probesPlanned > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut can't handle more than 100,000 probes ", MessageType.Error);
 
             if (GUILayout.Button("Generate Light Probes Grid"))
             {
-                //Dont generate if number of probes is too high
-                if (probeCount <= 100000)
+                // Dont generate if number of probes is too high
+                if (probesPlanned <= 100000)
                 {
                     Grid.Generate();
                     Grid.UpdateProbes();
+                    somethingChanged.boolValue = !somethingChanged.boolValue;
                 }
                 else _ = EditorUtility.DisplayDialog("Aborting", "ProbeGridAndCut Cannot handle more than 100,000 probes", "Ok");
             }
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
 
-        //========================================Only cut on Static Objects========================================
-        EditorGUILayout.Space(10f);
+        //========================================Only cut on Static Objects Section========================================
+        EditorGUILayout.Separator();
         onlyStatic.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(onlyStatic.isExpanded, "Check if you want to make cuts only on static objects");
         if (onlyStatic.isExpanded)
-            EditorGUILayout.PropertyField(onlyStatic, new GUIContent("Static Objects Only?"));
+            onlyStatic.boolValue = EditorGUILayout.Toggle(new GUIContent("Static Objects Only?"), onlyStatic.boolValue);
 
         EditorGUILayout.EndFoldoutHeaderGroup();
 
@@ -93,7 +106,6 @@ public class ProbeGridAndCutInspector : Editor
             {
                 BoundaryTags.InsertArrayElementAtIndex(BoundaryTags.arraySize);
             }
-
             if (GUILayout.Button("Remove Tag"))
             {
                 int size = BoundaryTags.arraySize - 1;
@@ -105,32 +117,35 @@ public class ProbeGridAndCutInspector : Editor
             {
                 Grid.CutTaggedObjects();
                 Grid.UpdateProbes();
+                somethingChanged.boolValue = !somethingChanged.boolValue;
             }
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
 
         //========================================Cut Probes on Objects Section========================================
-        EditorGUILayout.Space(10f);
+        EditorGUILayout.Separator();
         rayTestSize.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(rayTestSize.isExpanded, "Cut Probes by testing objects around");
         if (rayTestSize.isExpanded)
         {
             EditorGUILayout.LabelField("Size of rays (yellow lines) that test proximity with objects");
             EditorGUILayout.DelayedFloatField(rayTestSize, new GUIContent("Ray test size", "Make more than one object, but less than two"));
-            if (GUILayout.Button("Cut Probes Inside Objects"))
+            if (GUILayout.Button(new GUIContent("Cut Probes Inside Objects", "Cut if all yellow lines pass through the same object")))
             {
                 Grid.CutInsideObjects();
                 Grid.UpdateProbes();
+                somethingChanged.boolValue = !somethingChanged.boolValue;
             }
-            if (GUILayout.Button("Cut Probes Far From Objects"))
+            if (GUILayout.Button(new GUIContent("Cut Probes Far From Objects", "Don't cut if one yellow line pass through an object")))
             {
                 Grid.CutFarFromObject();
                 Grid.UpdateProbes();
+                somethingChanged.boolValue = !somethingChanged.boolValue;
             }
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
 
         //========================================Make Everything Section========================================
-        EditorGUILayout.Space(10f);
+        EditorGUILayout.Separator();
         EditorGUILayout.LabelField("Generate probes, cut bondaries, cut inside and cut outside", EditorStyles.boldLabel);
         if (GUILayout.Button("Make Everything"))
         {
@@ -139,20 +154,23 @@ public class ProbeGridAndCutInspector : Editor
             Grid.CutInsideObjects();
             Grid.CutFarFromObject();
 
-            //Dont generate if number of probes is too high
-            if (Grid.probePositions.Count <= 100000) Grid.UpdateProbes();
+            // Dont generate if number of probes is too high
+            if (Grid.probeCount <= 100000) Grid.UpdateProbes();
             else _ = EditorUtility.DisplayDialog("Aborting", "ProbeGridAndCut Cannot handle more than 100,000 probes", "Ok");
+
+            somethingChanged.boolValue = !somethingChanged.boolValue;
         }
 
         //========================================Make Everything for Evety ProbeGridAndCut Section========================================
-        EditorGUILayout.Space(10f);
-        showDanger = EditorGUILayout.BeginFoldoutHeaderGroup(showDanger, "Show Dangerous Button");
+        EditorGUILayout.Separator();
+        showDanger = EditorGUILayout.Toggle("Show Dangerous Button", showDanger);
         if (showDanger)
         {
-            EditorGUILayout.LabelField("Make Everthing for Every ProbeGridAndCut in the Scene");
-            if (GUILayout.Button("Make Everything for Every ProbeGridAndCut"))
+            EditorGUILayout.LabelField("Make Everthing for Every ProbeGridAndCut in the Scene", EditorStyles.boldLabel);
+            if (GUILayout.Button("Make Everything for Everyone"))
             {
-                ProbeGridAndCut[] foundInstances = Object.FindObjectsOfType<ProbeGridAndCut>();
+                allProbeCount = 0;
+                ProbeGridAndCutScript[] foundInstances = Object.FindObjectsOfType<ProbeGridAndCutScript>();
                 for (int i = 0; i < foundInstances.Length; i++)
                 {
                     foundInstances[i].Generate();
@@ -160,15 +178,44 @@ public class ProbeGridAndCutInspector : Editor
                     foundInstances[i].CutInsideObjects();
                     foundInstances[i].CutFarFromObject();
                     foundInstances[i].UpdateProbes();
-                    allProbeCount += foundInstances[i].probePositions.Count;
+                    allProbeCount += foundInstances[i].probeCount;
                 }
+                somethingChanged.boolValue = !somethingChanged.boolValue;
             }
             text = "All Probes Generated: " + allProbeCount.ToString();
             EditorGUILayout.LabelField(text);
         }
-        EditorGUILayout.EndFoldoutHeaderGroup();
 
-        //Apply all settings
+        //Save probe count
+        probeCount.intValue = Grid.probeCount;
+
+        // Apply all settings for serialized objects
         serializedObject.ApplyModifiedProperties();
+    }
+
+    [MenuItem("GameObject/Light/Probe Grid And Cut", false, 10)]
+    static void CreateCustomGameObject(MenuCommand menuCommand)
+    {
+        // Search the prefab asset path
+        string[] search = AssetDatabase.FindAssets("t:prefab ProbeGridAndCut");
+        string path = AssetDatabase.GUIDToAssetPath(search[0]);
+
+        // Instantiate prefab from path
+        Object prefab = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject));
+        GameObject instance = (GameObject)Object.Instantiate(prefab);
+
+        // Count number of instances in scene
+        instance.name = instance.name.Replace("(Clone)", "");
+        int count = Object.FindObjectsOfType<ProbeGridAndCutScript>().Length - 1;
+        if (count > 0) instance.name = instance.name + " (" + count + ")";
+
+        // Ensure it gets reparented if this was a context click (otherwise does nothing)
+        GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
+
+        // Register the creation in the undo system
+        Undo.RegisterCreatedObjectUndo(instance, "Create " + instance.name);
+
+        // Activate and set to rename
+        Selection.activeObject = instance;
     }
 }
