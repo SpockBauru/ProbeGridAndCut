@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class ProbeGridAndCutScript : MonoBehaviour
+public class ProbeGridAndCut : MonoBehaviour
 {
 #if UNITY_EDITOR
     // Number of probes on each axis of the grid
@@ -11,7 +11,7 @@ public class ProbeGridAndCutScript : MonoBehaviour
     public int probesInZ = 5;
 
     // Check if only static objects will be tested
-    public bool onlyStatic = true;
+    public bool onlyStatic = false;
 
     //Set editor to save if something change. Used in ProbeGridAndCutEditor.cs
     public bool somethingChanged = false;

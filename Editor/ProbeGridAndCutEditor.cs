@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEditor;
 
 
-[CustomEditor(typeof(ProbeGridAndCutScript))]
+[CustomEditor(typeof(ProbeGridAndCut))]
 public class ProbeGridAndCutEditor : Editor
 {
-    ProbeGridAndCutScript Grid;
+    ProbeGridAndCut Grid;
 
     // Variables from Monobehavior class
     SerializedProperty probesInX;
@@ -28,7 +28,7 @@ public class ProbeGridAndCutEditor : Editor
 
     void OnEnable()
     {
-        Grid = (ProbeGridAndCutScript)target;
+        Grid = (ProbeGridAndCut)target;
 
         probesInX = serializedObject.FindProperty("probesInX");
         probesInY = serializedObject.FindProperty("probesInY");
@@ -44,7 +44,7 @@ public class ProbeGridAndCutEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        Grid = (ProbeGridAndCutScript)target;
+        Grid = (ProbeGridAndCut)target;
 
         // ========================================Create Light Probe Grid Section========================================
         probesInX.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(probesInX.isExpanded, "Number of Light Probes on each axis");
@@ -170,7 +170,7 @@ public class ProbeGridAndCutEditor : Editor
             if (GUILayout.Button("Make Everything for Everyone"))
             {
                 allProbeCount = 0;
-                ProbeGridAndCutScript[] foundInstances = Object.FindObjectsOfType<ProbeGridAndCutScript>();
+                ProbeGridAndCut[] foundInstances = Object.FindObjectsOfType<ProbeGridAndCut>();
                 for (int i = 0; i < foundInstances.Length; i++)
                 {
                     foundInstances[i].Generate();
@@ -206,7 +206,7 @@ public class ProbeGridAndCutEditor : Editor
 
         // Count number of instances in scene
         instance.name = instance.name.Replace("(Clone)", "");
-        int count = Object.FindObjectsOfType<ProbeGridAndCutScript>().Length - 1;
+        int count = Object.FindObjectsOfType<ProbeGridAndCut>().Length - 1;
         if (count > 0) instance.name = instance.name + " (" + count + ")";
 
         // Ensure it gets reparented if this was a context click (otherwise does nothing)
