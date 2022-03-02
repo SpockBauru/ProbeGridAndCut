@@ -27,7 +27,7 @@ public class ProbeGridAndCut : MonoBehaviour
 
     //Internal List of Light Probe Positions
     private List<Vector3> probePositions;
-    public int probeCount=0;
+    public int probeCount = 0;
 
     void Start()
     {
@@ -148,27 +148,32 @@ public class ProbeGridAndCut : MonoBehaviour
 
             // Up to probe
             rayPos.Set(position.x, position.y + rayTestSize, position.z);
-            if (Physics.Raycast(rayPos, Vector3.down, out hit, Vector3.Distance(rayPos, position))) name1 = hit.transform.name;
+            if (Physics.Raycast(rayPos, Vector3.down, out hit, Vector3.Distance(rayPos, position)))
+                name1 = hit.transform.name;
             Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
             // Right to Probe
             rayPos.Set(position.x + rayTestSize, position.y, position.z);
-            if (Physics.Raycast(rayPos, Vector3.left, out hit, Vector3.Distance(rayPos, position))) name2 = hit.transform.name;
+            if (Physics.Raycast(rayPos, Vector3.left, out hit, Vector3.Distance(rayPos, position)))
+                name2 = hit.transform.name;
             Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
             // Left to Probe
             rayPos.Set(position.x - rayTestSize, position.y, position.z);
-            if (Physics.Raycast(rayPos, Vector3.right, out hit, Vector3.Distance(rayPos, position))) name3 = hit.transform.name;
+            if (Physics.Raycast(rayPos, Vector3.right, out hit, Vector3.Distance(rayPos, position)))
+                name3 = hit.transform.name;
             Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
             // Forward to Probe
             rayPos.Set(position.x, position.y, position.z + rayTestSize);
-            if (Physics.Raycast(rayPos, Vector3.back, out hit, Vector3.Distance(rayPos, position))) name4 = hit.transform.name;
+            if (Physics.Raycast(rayPos, Vector3.back, out hit, Vector3.Distance(rayPos, position)))
+                name4 = hit.transform.name;
             Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
             // Back to Probe
             rayPos.Set(position.x, position.y, position.z - rayTestSize);
-            if (Physics.Raycast(rayPos, Vector3.forward, out hit, Vector3.Distance(rayPos, position))) name5 = hit.transform.name;
+            if (Physics.Raycast(rayPos, Vector3.forward, out hit, Vector3.Distance(rayPos, position)))
+                name5 = hit.transform.name;
             Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
             if (name1 == name2 &&
@@ -185,15 +190,11 @@ public class ProbeGridAndCut : MonoBehaviour
         Vector3 center = transform.position;
         Vector3 scale = transform.localScale;
         Vector3 position;
-        Vector3 endLine = Vector3.zero;
-        Vector3 startLine = Vector3.zero;
+        Vector3 edge = Vector3.zero;
 
         bool hitObject;
-        bool hitTest;
 
-        RaycastHit hit;
-
-        // Raycast all 3 axis from one side to other, and vice versa.
+        // Raycast all axis from one side to center, and vice versa.
         // If there's at least one hit, the probe is near an object and will not be cut
         for (int i = probePositions.Count - 1; i >= 0; i--)
         {
@@ -203,44 +204,52 @@ public class ProbeGridAndCut : MonoBehaviour
 
             hitObject = false;
 
-            // Down to Up and Up do Down
-            startLine.Set(position.x, position.y - rayTestSize, position.z);
-            endLine.Set(position.x, position.y + rayTestSize, position.z);
+            // Probe to down
+            edge.Set(position.x, position.y - rayTestSize, position.z);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            hitTest = Physics.Raycast(startLine, Vector3.up, out hit, Vector3.Distance(startLine, endLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
+            // Probe to up
+            edge.Set(position.x, position.y + rayTestSize, position.z);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            hitTest = Physics.Raycast(endLine, Vector3.down, out hit, Vector3.Distance(endLine, startLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
+            // Probe to left
+            edge.Set(position.x - rayTestSize, position.y, position.z);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
+            // Probe to right
+            edge.Set(position.x + rayTestSize, position.y, position.z);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            // Left to Right and Right to Left
-            startLine.Set(position.x - rayTestSize, position.y, position.z);
-            endLine.Set(position.x + rayTestSize, position.y, position.z);
+            // Probe to Back
+            edge.Set(position.x, position.y, position.z - rayTestSize);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            hitTest = Physics.Raycast(startLine, Vector3.right, out hit, Vector3.Distance(startLine, endLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
+            // Probe to Forward
+            edge.Set(position.x, position.y, position.z + rayTestSize);
+            hitObject = hitObject || TestCenterEdge(position, edge);
 
-            hitTest = Physics.Raycast(endLine, Vector3.left, out hit, Vector3.Distance(endLine, startLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
-
-            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
-
-            // Back to Forward and Forward to Back
-            startLine.Set(position.x, position.y, position.z - rayTestSize);
-            endLine.Set(position.x, position.y, position.z + rayTestSize);
-
-            hitTest = Physics.Raycast(startLine, Vector3.forward, out hit, Vector3.Distance(startLine, endLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
-
-            hitTest = Physics.Raycast(endLine, Vector3.back, out hit, Vector3.Distance(endLine, startLine));
-            hitObject = hitObject || hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
-
-            Debug.DrawLine(startLine, endLine, Color.yellow, 1);
-
+            //If probe hit nothing, remove
             if (!hitObject) probePositions.RemoveAt(i);
         }
+    }
+
+    private bool TestCenterEdge(Vector3 center, Vector3 edge)
+    {
+        RaycastHit hit;
+        bool hitTest;
+
+        //from center to edge 
+        hitTest = Physics.Raycast(center, (edge - center), out hit, Vector3.Distance(center, edge));
+        //if is not a static object and the plugin is set to ignore non static, its a false hit
+        hitTest = hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
+
+        //from edge to center
+        hitTest = hitTest || Physics.Raycast(edge, (center - edge), out hit, Vector3.Distance(edge, center));
+        //if is not a static object and the plugin is set to ignore non static, its a false hit
+        hitTest = hitTest && (hit.collider.gameObject.isStatic || !onlyStatic);
+
+        Debug.DrawLine(center, edge, Color.yellow, 1);
+        return hitTest;
     }
 #endif
 }
