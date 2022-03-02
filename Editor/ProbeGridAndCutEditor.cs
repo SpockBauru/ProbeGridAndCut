@@ -26,9 +26,6 @@ public class ProbeGridAndCutEditor : Editor
     // Keep this folded
     bool showDanger = false;
 
-    //Discard variable for older unity (5.2) without underline discard "_"
-    bool discard;
-
     void OnEnable()
     {
         Grid = (ProbeGridAndCut)target;
@@ -50,6 +47,7 @@ public class ProbeGridAndCutEditor : Editor
         Grid = (ProbeGridAndCut)target;
 
         // ========================================Create Light Probe Grid Section========================================
+        EditorGUILayout.Separator();
         EditorGUILayout.LabelField("Number of Light Probes on each axis", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(probesInX, new GUIContent("Probes in X", "Minimum is 2"));
         EditorGUILayout.PropertyField(probesInY, new GUIContent("Probes in Y", "Minimum is 2"));
@@ -67,18 +65,20 @@ public class ProbeGridAndCutEditor : Editor
 
         // Display as warning if number is too big
         if (probesPlanned > 10000 && probesPlanned <= 100000) EditorGUILayout.HelpBox("WARNING: More than 10,000 probes can cause slowdowns", MessageType.Warning);
-        if (probesPlanned > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut can't handle more than 100,000 probes ", MessageType.Error);
+        if (probesPlanned > 100000) EditorGUILayout.HelpBox("DANGER: ProbeGridAndCut is not designed to handle more than 100,000 probes ", MessageType.Error);
 
         if (GUILayout.Button("Generate Light Probes Grid"))
         {
-            // Dont generate if number of probes is too high
-            if (probesPlanned <= 100000)
+            //Display a message if number of probes is too high
+            if (probesPlanned > 100000)
             {
-                Grid.Generate();
-                Grid.UpdateProbes();
-                somethingChanged.boolValue = !somethingChanged.boolValue;
+                if (!EditorUtility.DisplayDialog("Warning", "These values will lead to more than 100,000 probes.\n\nIt's recommended to save before.\n\nAre you sure you want generate this amount of Light Probes?", "Yes", "No"))
+                    return;
             }
-            else discard = EditorUtility.DisplayDialog("Aborting", "ProbeGridAndCut cannot handle more than 100,000 probes", "Ok");
+
+            Grid.Generate();
+            Grid.UpdateProbes();
+            somethingChanged.boolValue = !somethingChanged.boolValue;
         }
 
         //========================================Only cut on Static Objects Section========================================
@@ -87,7 +87,7 @@ public class ProbeGridAndCutEditor : Editor
         onlyStatic.boolValue = EditorGUILayout.Toggle(new GUIContent("Static Objects Only?"), onlyStatic.boolValue);
 
         //========================================Cut Probes on Tagged Boundaries Section========================================
-        EditorGUILayout.Space();
+        EditorGUILayout.Separator();
         EditorGUILayout.LabelField("Cut probes outside tagged boundaries", EditorStyles.boldLabel);
 
         for (int i = 0; i < BoundaryTags.arraySize; i++)
@@ -139,15 +139,18 @@ public class ProbeGridAndCutEditor : Editor
         EditorGUILayout.LabelField("Generate probes, cut bondaries, cut inside and cut outside", EditorStyles.boldLabel);
         if (GUILayout.Button("Make Everything"))
         {
+            //Display a message if number of probes is too high
+            if (probesPlanned > 100000)
+            {
+                if (!EditorUtility.DisplayDialog("Warning", "These values will lead to more than 100,000 probes.\n\nIt's recommended to save before.\n\nAre you sure you want generate this amount of Light Probes?", "Yes", "No"))
+                    return;
+            }
+
             Grid.Generate();
             Grid.CutTaggedObjects();
             Grid.CutInsideObjects();
             Grid.CutFarFromObject();
-
-            // Dont generate if number of probes is too high
-            if (Grid.probeCount <= 100000) Grid.UpdateProbes();
-            else discard = EditorUtility.DisplayDialog("Aborting", "ProbeGridAndCut cannot handle more than 100,000 probes", "Ok");
-
+            Grid.UpdateProbes();
             somethingChanged.boolValue = !somethingChanged.boolValue;
         }
 
