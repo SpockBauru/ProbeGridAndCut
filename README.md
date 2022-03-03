@@ -1,6 +1,18 @@
 # ProbeGridAndCut
 Make a grid of Light Probes in Unity, and them Cut unwanted ones using raycast tools
 
+# Index
+ * [How to install](#how-to-install)
+ * [Making a grid of Light Probes](#making-a-grid-of-light-probes)
+ * [Cutting Light Probes](#cutting-light-probes)
+   * [Cut based on Tags](#cut-based-on-tags)
+   * [Cut based on objects around](#cut-based-on-objects-around)
+     * [Cut probes inside objects](#cut-probes-inside-objects)
+     * [Cut probes far from objects](#cut-probes-far-from-objects)
+ * [Make Everything](#make-everything)
+ * [The Dangerous Button](#the-dangerous-button)
+ * [Limitations](#limitations)
+
 # How to install
 Install ProbeGridAndCut in your Assets folder (just copy the folder). 
 
