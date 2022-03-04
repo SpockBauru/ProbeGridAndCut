@@ -22,7 +22,7 @@ namespace ProbeGridAndCut
         public List<string> BoundaryTags = new List<string> { "Untagged" };
 
         // Size of raycast from each probe
-        public float rayTestSizeInsideObject = 5f;
+        public float rayTestSizeInsideObject = 2.5f;
         public float rayTestSizeFarObject = 1.5f;
 
         //Light Probe Group in Editor
