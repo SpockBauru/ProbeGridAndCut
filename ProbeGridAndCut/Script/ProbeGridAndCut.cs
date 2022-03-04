@@ -21,8 +21,9 @@ namespace ProbeGridAndCut
         // List of tags that will be tested in raycastAll
         public List<string> BoundaryTags = new List<string> { "Untagged" };
 
-        // Max size of raycast from each probe
-        public float rayTestSize = 1f;
+        // Size of raycast from each probe
+        public float rayTestSizeInsideObject = 5f;
+        public float rayTestSizeFarObject = 1.5f;
 
         //Light Probe Group in Editor
         LightProbeGroup probeGroup;
@@ -149,31 +150,31 @@ namespace ProbeGridAndCut
                 name5 = "5";
 
                 // Up to probe
-                rayPos.Set(position.x, position.y + rayTestSize, position.z);
+                rayPos.Set(position.x, position.y + rayTestSizeInsideObject, position.z);
                 if (Physics.Raycast(rayPos, Vector3.down, out hit, Vector3.Distance(rayPos, position)))
                     name1 = hit.transform.name;
                 Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
                 // Right to Probe
-                rayPos.Set(position.x + rayTestSize, position.y, position.z);
+                rayPos.Set(position.x + rayTestSizeInsideObject, position.y, position.z);
                 if (Physics.Raycast(rayPos, Vector3.left, out hit, Vector3.Distance(rayPos, position)))
                     name2 = hit.transform.name;
                 Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
                 // Left to Probe
-                rayPos.Set(position.x - rayTestSize, position.y, position.z);
+                rayPos.Set(position.x - rayTestSizeInsideObject, position.y, position.z);
                 if (Physics.Raycast(rayPos, Vector3.right, out hit, Vector3.Distance(rayPos, position)))
                     name3 = hit.transform.name;
                 Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
                 // Forward to Probe
-                rayPos.Set(position.x, position.y, position.z + rayTestSize);
+                rayPos.Set(position.x, position.y, position.z + rayTestSizeInsideObject);
                 if (Physics.Raycast(rayPos, Vector3.back, out hit, Vector3.Distance(rayPos, position)))
                     name4 = hit.transform.name;
                 Debug.DrawLine(position, rayPos, Color.yellow, 1);
 
                 // Back to Probe
-                rayPos.Set(position.x, position.y, position.z - rayTestSize);
+                rayPos.Set(position.x, position.y, position.z - rayTestSizeInsideObject);
                 if (Physics.Raycast(rayPos, Vector3.forward, out hit, Vector3.Distance(rayPos, position)))
                     name5 = hit.transform.name;
                 Debug.DrawLine(position, rayPos, Color.yellow, 1);
@@ -207,27 +208,27 @@ namespace ProbeGridAndCut
                 hitObject = false;
 
                 // Probe to down
-                edge.Set(position.x, position.y - rayTestSize, position.z);
+                edge.Set(position.x, position.y - rayTestSizeFarObject, position.z);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 // Probe to up
-                edge.Set(position.x, position.y + rayTestSize, position.z);
+                edge.Set(position.x, position.y + rayTestSizeFarObject, position.z);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 // Probe to left
-                edge.Set(position.x - rayTestSize, position.y, position.z);
+                edge.Set(position.x - rayTestSizeFarObject, position.y, position.z);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 // Probe to right
-                edge.Set(position.x + rayTestSize, position.y, position.z);
+                edge.Set(position.x + rayTestSizeFarObject, position.y, position.z);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 // Probe to Back
-                edge.Set(position.x, position.y, position.z - rayTestSize);
+                edge.Set(position.x, position.y, position.z - rayTestSizeFarObject);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 // Probe to Forward
-                edge.Set(position.x, position.y, position.z + rayTestSize);
+                edge.Set(position.x, position.y, position.z + rayTestSizeFarObject);
                 hitObject = hitObject || TestCenterEdge(position, edge);
 
                 //If probe hit nothing, remove

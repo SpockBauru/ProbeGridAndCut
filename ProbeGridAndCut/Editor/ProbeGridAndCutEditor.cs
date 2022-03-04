@@ -15,7 +15,8 @@ namespace ProbeGridAndCut
 
         SerializedProperty onlyStatic;
         SerializedProperty somethingChanged;
-        SerializedProperty rayTestSize;
+        SerializedProperty rayTestSizeInsideObject;
+        SerializedProperty rayTestSizeFarObject;
         SerializedProperty BoundaryTags;
         SerializedProperty probeCount;
 
@@ -37,7 +38,8 @@ namespace ProbeGridAndCut
 
             onlyStatic = serializedObject.FindProperty("onlyStatic");
             somethingChanged = serializedObject.FindProperty("somethingChanged");
-            rayTestSize = serializedObject.FindProperty("rayTestSize");
+            rayTestSizeInsideObject = serializedObject.FindProperty("rayTestSizeInsideObject");
+            rayTestSizeFarObject = serializedObject.FindProperty("rayTestSizeFarObject");
             BoundaryTags = serializedObject.FindProperty("BoundaryTags");
             probeCount = serializedObject.FindProperty("probeCount");
         }
@@ -117,27 +119,35 @@ namespace ProbeGridAndCut
             }
 
             //========================================Cut Probes on Objects Section========================================
-            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();            
             EditorGUILayout.LabelField("Cut Probes by testing objects around", EditorStyles.boldLabel);
-
-            EditorGUILayout.LabelField("Size of rays (yellow lines) that test proximity with objects");
-            EditorGUILayout.DelayedFloatField(rayTestSize, new GUIContent("Ray test size", "Make more than one object, but less than two"));
-            if (GUILayout.Button(new GUIContent("Cut Probes Inside Objects", "Cut if all yellow lines pass through the same object")))
+            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(rayTestSizeInsideObject, new GUIContent("Object Size", "Make more than the size of objects"));
+            if (rayTestSizeInsideObject.floatValue < 0) rayTestSizeInsideObject.floatValue = 0;
+            if (GUILayout.Button(new GUIContent("Cut Inside Objects", "Cut if all yellow lines pass through the same object")))
             {
                 Grid.CutInsideObjects();
                 Grid.UpdateProbes();
                 somethingChanged.boolValue = !somethingChanged.boolValue;
             }
-            if (GUILayout.Button(new GUIContent("Cut Probes Far From Objects", "Don't cut if one yellow line pass through an object")))
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Separator();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(rayTestSizeFarObject, new GUIContent("Distance from objects", "Make more than distance between two probes"));
+            if (rayTestSizeFarObject.floatValue < 0) rayTestSizeFarObject.floatValue = 0;
+            if (GUILayout.Button(new GUIContent("Cut Far From Objects", "Don't cut if one yellow line pass through an object")))
             {
                 Grid.CutFarFromObject();
                 Grid.UpdateProbes();
                 somethingChanged.boolValue = !somethingChanged.boolValue;
             }
+            EditorGUILayout.EndHorizontal();
 
             //========================================Make Everything Section========================================
             EditorGUILayout.Separator();
-            EditorGUILayout.LabelField("Generate probes, cut bondaries, cut inside and cut outside", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Generate, cut bondaries, cut inside and outside", EditorStyles.boldLabel);
             if (GUILayout.Button("Make Everything"))
             {
                 //Display a message if number of probes is too high
