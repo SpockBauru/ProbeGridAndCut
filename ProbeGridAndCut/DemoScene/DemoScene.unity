@@ -616,8 +616,8 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Generate Lighting to see the Light Probe Effect.
 
-    Window-> Lighting->
-    Settings-> Generate Lighting (bottom right button)'
+    Window-> Rendering
+    -> Lighting Settings-> Generate Lighting (bottom right button)'
 --- !u!222 &980887488
 CanvasRenderer:
   m_ObjectHideFlags: 0
