@@ -183,7 +183,7 @@ MonoBehaviour:
   probesInY: 5
   probesInZ: 5
   onlyStatic: 0
-  somethingChanged: 1
+  somethingChanged: 0
   BoundaryTags:
   - Untagged
   rayTestSizeInsideObject: 2.5
