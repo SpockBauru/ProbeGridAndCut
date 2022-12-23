@@ -43,7 +43,8 @@ namespace ProbeGridAndCut
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(transform.position, transform.lossyScale);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
         }
 
         public void UpdateProbes()
@@ -87,7 +88,6 @@ namespace ProbeGridAndCut
         public void CutTaggedObjects()
         {
             Vector3 center = transform.position;
-            Vector3 scale = transform.localScale;
             Vector3 position;
             Vector3 direction;
             float distance;
@@ -98,13 +98,9 @@ namespace ProbeGridAndCut
             // Removing from the end of the list to the beginning
             for (int i = probePositions.Count - 1; i >= 0; i--)
             {
-                // Scaling from probe relative position to object position
-                position = Vector3.Scale(probePositions[i], scale);
-                position += center;
-
-                // Distance and direction for the Raycast
-                distance = Vector3.Distance(center, position);
+                position = transform.TransformPoint(probePositions[i]);
                 direction = position - center;
+                distance = Vector3.Distance(center, position);
 
                 // Trace a raycast from the center to the probe. If hit a tagged object the probe is removed from the list.
                 Debug.DrawLine(center, position, Color.yellow, 1);
@@ -124,8 +120,6 @@ namespace ProbeGridAndCut
 
         public void CutInsideObjects()
         {
-            Vector3 center = transform.position;
-            Vector3 scale = transform.localScale;
             Vector3 position;
             Vector3 rayPos = Vector3.zero;
 
@@ -139,9 +133,7 @@ namespace ProbeGridAndCut
             // Removing from the end of the list to the beginning
             for (int i = probePositions.Count - 1; i >= 0; i--)
             {
-                // scaling from relative to world position
-                position = Vector3.Scale(probePositions[i], scale);
-                position += center;
+                position = transform.TransformPoint(probePositions[i]);
 
                 name1 = "1";
                 name2 = "2";
@@ -190,8 +182,6 @@ namespace ProbeGridAndCut
 
         public void CutFarFromObject()
         {
-            Vector3 center = transform.position;
-            Vector3 scale = transform.localScale;
             Vector3 position;
             Vector3 edge = Vector3.zero;
 
@@ -202,8 +192,7 @@ namespace ProbeGridAndCut
             for (int i = probePositions.Count - 1; i >= 0; i--)
             {
                 // Scaling from relative to world position
-                position = Vector3.Scale(probePositions[i], scale);
-                position += center;
+                position = transform.TransformPoint(probePositions[i]);
 
                 hitObject = false;
 
