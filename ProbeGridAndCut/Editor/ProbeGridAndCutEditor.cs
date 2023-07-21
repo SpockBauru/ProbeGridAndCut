@@ -369,7 +369,11 @@ namespace ProbeGridAndCut
             if (GUILayout.Button("Count All Probes"))
             {
                 allProbesInScene = 0;
+#if UNITY_2023_1_OR_NEWER
+                LightProbeGroup[] probeInstances = Object.FindObjectsByType<LightProbeGroup>(FindObjectsSortMode.None);
+#else
                 LightProbeGroup[] probeInstances = Object.FindObjectsOfType<LightProbeGroup>();
+#endif
                 foreach (LightProbeGroup lightGroup in probeInstances)
                 {
                     allProbesInScene += lightGroup.probePositions.Length;
@@ -387,7 +391,11 @@ namespace ProbeGridAndCut
                 redButton))
             {
                 allCreatedProbes = 0;
+#if UNITY_2023_1_OR_NEWER
+                ProbeGridAndCut[] gridAndCutInstances = Object.FindObjectsByType<ProbeGridAndCut>(FindObjectsSortMode.None);
+#else
                 ProbeGridAndCut[] gridAndCutInstances = Object.FindObjectsOfType<ProbeGridAndCut>();
+#endif
                 foreach (ProbeGridAndCut gridAndCut in gridAndCutInstances)
                 {
                     gridAndCut.Generate();
@@ -427,7 +435,11 @@ namespace ProbeGridAndCut
 
             // Count number of instances in scene
             instance.name = instance.name.Replace("(Clone)", "");
+#if UNITY_2023_1_OR_NEWER
+            int count = Object.FindObjectsByType<ProbeGridAndCut>(FindObjectsSortMode.None).Length - 1;
+#else
             int count = Object.FindObjectsOfType<ProbeGridAndCut>().Length - 1;
+#endif
             if (count > 0) instance.name = instance.name + " (" + count + ")";
 
             // Ensure it gets reparented if this was a context click (otherwise does nothing)
