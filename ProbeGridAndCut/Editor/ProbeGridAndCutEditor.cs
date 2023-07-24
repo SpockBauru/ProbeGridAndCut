@@ -312,17 +312,19 @@ namespace ProbeGridAndCut
         {
             int option = EditorUtility.DisplayDialogComplex("Warning", "Cut by Lighting only works if you Generate Lighting.\n\n" +
                                                                        "Normal Bake: The same as click on Generate Light.\n" +
-                                                                       "Just Cut: Use this if you baked the full grid before.\n" +
-                                                                       "Simple Bake: Reduced quality for faster bake. Will destroy lightmaps.",
+                                                                       "Simple Bake: Reduced quality for faster bake. Will destroy lightmaps.\n" +
+                                                                       "Just Cut: Use this if you baked the full grid before.\n",
                                                             "Normal Bake",
-                                                            "Simple Bake",
-                                                            "Just Cut");
+                                                            "Just Cut",
+                                                            "Simple Bake");
             switch (option)
             {
                 case 0:
                     Grid.BakeLighting();
                     break;
                 case 1:
+                    break;
+                case 2:
                     Grid.SimpleBake();
                     break;
             }
