@@ -19,9 +19,8 @@ Make a grid of Light Probes in Unity, and them Cut unwanted ones.
  * [Changelog](#changelog)
 
 # New in v2.0
+Turn on the audio for music ^-^
 https://github.com/SpockBauru/ProbeGridAndCut/assets/67930504/72e6d08d-bc47-4496-a8f0-22b3c9723211
-
-
 
 # How to install
 Install ProbeGridAndCut in your Assets folder (just copy the folder). 
