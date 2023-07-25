@@ -1,29 +1,32 @@
 ﻿using UnityEngine;
 
-public class MoveObject : MonoBehaviour
+namespace ProbeGridAndCut_DemoScene
 {
-    Vector3 position;
-    bool forward = true;
-
-    // Start is called before the first frame update
-    void Start()
+    public class MoveObject : MonoBehaviour
     {
-        position = transform.position;
-    }
+        Vector3 position;
+        bool forward = true;
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (forward)
+        // Start is called before the first frame update
+        void Start()
         {
-            position.z -= Time.deltaTime * 10;
-            if (position.z < -102f) forward = false;
+            position = transform.position;
         }
-        else
+
+        // Update is called once per frame
+        void Update()
         {
-            position.z += Time.deltaTime * 100;
-            if (position.z > 5f) forward = true;
+            if (forward)
+            {
+                position.z -= Time.deltaTime * 10;
+                if (position.z < -102f) forward = false;
+            }
+            else
+            {
+                position.z += Time.deltaTime * 100;
+                if (position.z > 5f) forward = true;
+            }
+            transform.position = position;
         }
-        transform.position = position;
     }
 }
