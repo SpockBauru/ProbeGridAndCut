@@ -298,7 +298,7 @@ namespace ProbeGridAndCut
 
         void CutByLight()
         {
-            contrast.floatValue = EditorGUILayout.Slider(new GUIContent("Color difference", "Minimum color difference between probes"), contrast.floatValue, 0, 0.2f);
+            contrast.floatValue = EditorGUILayout.Slider(new GUIContent("Color difference", "Minimum color difference between probes"), contrast.floatValue, 0, 1f);
             if (GUILayout.Button("Cut Probes with Low Color Difference"))
             {
                 ChooseBake();
