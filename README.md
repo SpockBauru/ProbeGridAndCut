@@ -1,17 +1,22 @@
 # ProbeGridAndCut
-Make a grid of Light Probes in Unity, and them Cut unwanted ones using raycast tools
+Make a grid of Light Probes in Unity, and them Cut unwanted ones.
 
 # Index
  * [How to install](#how-to-install)
  * [Making a grid of Light Probes](#making-a-grid-of-light-probes)
- * [Cutting Light Probes](#cutting-light-probes)
+ * [Cut Probes Based on Objects](cut-probes-based-on-objects)
    * [Cut based on Tags](#cut-based-on-tags)
    * [Cut based on objects around](#cut-based-on-objects-around)
      * [Cut probes inside objects](#cut-probes-inside-objects)
      * [Cut probes far from objects](#cut-probes-far-from-objects)
+	 * [Make All Colliders](#make-all-colliders)
+ * [Cut based on Baked Light](#cut-cased-on-baked-light)
  * [Make Everything](#make-everything)
- * [The Dangerous Button](#the-dangerous-button)
+ * [DANGER ZONE](#danger-zone)
  * [Limitations](#limitations)
+ * [Compatibility](#Compatibility)
+ * [Ending notes](#ending-notes)
+ * [Changelog](#Changelog)
 
 # How to install
 Install ProbeGridAndCut in your Assets folder (just copy the folder). 
@@ -25,12 +30,10 @@ In the ProbeGridAndCut Inspector, you can set the number of Light Probes on each
 
 Now you can cut unwanted probes with the methods bellow
 
-# Cutting Light Probes
-There are a few methods to cut unwanted Light Probes based on the objects in the scene. But first you must choose if you want to test only Static objects, or all the objects.
+# Cut Probes Based on Objects
+First you must choose if you want to test only Static objects. This is important be-cause it's a bad idea to remove Light Probes on moving objects.
 
-This is important because it's not a good idea to remove Light Probes on moving objects.
-
-Use the checkbox **"Static Objects Only?"** to make the tests only on objects with a Static flag enabled.
+Use the checkbox "Static Objects Only?" to consider only objects with a Static flag enabled. 
 
 ## Cut based on Tags
 This method is designed to cut probes that are placed beyond the limits of the scene, such as the ground or the walls of a cave. 
@@ -46,31 +49,65 @@ This method will cast rays on each axis of the light probe (yellow lines) and ma
 
 **Warning:** Work only with objects containing colliders.
 
-There are two methods here: "Cut inside objects" and "Cut far from objects.
-
-For both methods, you can set the size of the ray (yellow line) on the field "ray test size".
-
 ### Cut probes inside objects
-This method is designed to delete probes that are inside objects. It will test 5 axis of each Light Probes: Up, Left, Right, Forward and Backward
+This method is designed to delete probes that are inside objects. It will test 5 axis of each Light Probes: Up, Left, Right, Forward and Backward. The "down" axis is not tested because it is common objects that don't have one side, such as trees.
 
 If all rays intercept the same object, it means that the probe is inside it and will be removed.
-
-Note: The "down" axis is not tested because it is common practice to have objects that have no bottom, such as trees.
 
 ### Cut probes far from objects
 This method is designed to delete probes that are far away from any object. Normally these probes don't contain any relevant light information, but use with care in places that have a high usage spotlights.
 
-When you click the button, all 6 axis will be tested on each Light Probe: Up, Down, Left, Right, Forward and Backward
+When you click the button, all 6 axis will be tested on each Light Probe. If none of these rays intercept an object, the probe will be cut.
 
-If any ray intercepts an object, the probe will be cut.
-
-# Make Everything
+## Make All Colliders
 If you are used with the tool and know how to configure it, this button makes all operations above at once! Just make sure that you know what are you doing.
 
-# The Dangerous Button
+# Cut based on Baked Light
+In order to work, your probes need to be baked already: Window -> Rendering -> Lighting -> Generate Lighting.
+This option will test the probe with those around. It will be cut if the color baked in the probe is not different enough.
+ 
+When using this option, a windows pop up will appear asking if you want to bake the lighting before cut the probes:
+ 
+-	Normal Bake: The regular Generate Lighting.
+-	Simple Bake: Fast baking with reduced quality.
+</br>WARNING: This option will destroy your lightmaps!
+-	Just Cut: Cut the probes with the current baking.
+
+# Make Everything
+If you are used with the tool and know how to configure it, this button makes all operations above at once! Just make sure that you know what you are doing.
+
+# DANGER ZONE
 This option open **The Dangerous Button**. This button will use the option "Make Everything" for all ProbeGridAndCut scripts placed in the scene! You must be really careful on this one!
 
 # Limitations
 ProbeGridAndCut is not designed to work with a huge number of Light Probes at once covering a vast area. It is designed to be placed various times in a scene, with relatively small grids (less than 10,000 probes). If you want to place something like 100,000 probes at once, please consider professional tool, such as "Magic Light Probes", "AutoProbe" or "Automatic Light Probe Generator"
 
 Cutting probes relies on raycast, which only works on object that have a collider. If the object doesn’t have a collider, it will not be tested for the cut.
+
+# Compatibility
+I made an effort to make this tool compatible with most versions of Unity possi-ble, from Unity 5.6 to the present.
+ProbeGridAndCut is independent of the rendering pipeline and platform in use. In the Demo scene, you may have to convert the material to URP or HDRP using Unity's Render Pipieline Converter (or just delete the DemoScene folder).
+
+# Ending notes
+This tool was entirely made on my free time. If you want to support me, please make an awesome asset compatible with URP and publish for free to the community!
+
+# Changelog
+v2.0:
+-	New Feature: Cut probes by Light Difference.
+-	New Feature: Disable Yellow Lines.
+-	New Feature: Count all probes from opened scenes.
+-	New Feature: Added progress bar.
+-	UI redesign, now with foldouts.
+-	Cut probes now follow the group orientation.
+-	Complete code overhaul: performance was improved.
+-	Fixed a bug related to cut inside objects when there are other objects nearby.
+-	Compatibility with Unity 2023
+
+v1.1:
+-	Fixed a bug that happens when you rotate the light probe group.
+-	Improved Gizmodo scaling.
+-	Improved precision.
+-	Improved documentation.
+
+v1.0:
+-	First release.
