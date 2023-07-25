@@ -4,19 +4,19 @@ Make a grid of Light Probes in Unity, and them Cut unwanted ones.
 # Index
  * [How to install](#how-to-install)
  * [Making a grid of Light Probes](#making-a-grid-of-light-probes)
- * [Cut Probes Based on Objects](cut-probes-based-on-objects)
+ * [Cut Probes Based on Objects](#cut-probes-based-on-objects)
    * [Cut based on Tags](#cut-based-on-tags)
    * [Cut based on objects around](#cut-based-on-objects-around)
      * [Cut probes inside objects](#cut-probes-inside-objects)
      * [Cut probes far from objects](#cut-probes-far-from-objects)
 	 * [Make All Colliders](#make-all-colliders)
- * [Cut based on Baked Light](#cut-cased-on-baked-light)
+ * [Cut based on Baked Light](#cut-based-on-baked-light)
  * [Make Everything](#make-everything)
  * [DANGER ZONE](#danger-zone)
  * [Limitations](#limitations)
- * [Compatibility](#Compatibility)
+ * [Compatibility](#compatibility)
  * [Ending notes](#ending-notes)
- * [Changelog](#Changelog)
+ * [Changelog](#changelog)
 
 # New in v2.0
 https://github.com/SpockBauru/ProbeGridAndCut/assets/67930504/72e6d08d-bc47-4496-a8f0-22b3c9723211
