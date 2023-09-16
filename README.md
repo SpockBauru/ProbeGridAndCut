@@ -1,3 +1,5 @@
+:exclamation: This repository is archived due to the breach of trust caused by Unity Technologies. This is not a reliable business partner to work with.
+
 # ProbeGridAndCut
 Make a grid of Light Probes in Unity, and them Cut unwanted ones.
 
